@@ -2,8 +2,13 @@ import tensorflow as tf
 from keras.preprocessing.image import ImageDataGenerator
 import keras.utils as image
 import numpy as np
+import logging, time
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s', filename= "logs/iaone.log")
 
 def predict_image(model, img_path):
+    logging.info("predict_image")
+    inicio = time.time()
     # Cargar la imagen y preprocesarla para hacer la predicción
     img = image.load_img(img_path, target_size=(150, 150))
     img_array = image.img_to_array(img)
@@ -15,10 +20,13 @@ def predict_image(model, img_path):
     
     # Obtener la clase predicha
     predicted_class = np.argmax(prediction)
-    
+    fin = time.time()
+    logging.info(f'TIEMPO DE EJECUCION(predict_image): {round(fin-inicio, 1)}s')
     return predicted_class
 
 def train_model_with_feedback(model, img_path, correct_label):
+    logging.info("train_model_with_feedback")
+    inicio = time.time()
     # Obtener la predicción del modelo
     predicted_class = predict_image(model, img_path)
     
@@ -52,6 +60,8 @@ def train_model_with_feedback(model, img_path, correct_label):
             print("Modelo actualizado con éxito.")
         else:
             print("Gracias por confirmar la predicción.")
+    fin = time.time()
+    logging.info(f'TIEMPO DE EJECUCION(train_model_with_feedback): {round(fin-inicio, 1)}s')
 
 def train_model_with_image(model, img_path, correct_label):
     # Cargar la imagen y su etiqueta correcta
@@ -67,79 +77,86 @@ def train_model_with_image(model, img_path, correct_label):
     # Reentrenar el modelo con la nueva imagen
     model.fit(X, y, epochs=1)  # Aquí puedes ajustar el número de épocas según lo desees
 
-# Define los generadores de datos para imágenes de StockX y originales
-train_datagen_stockx = ImageDataGenerator(
-    rescale=1./255,
-    rotation_range=20,
-    width_shift_range=0.2,
-    height_shift_range=0.2,
-    shear_range=0.2,
-    zoom_range=0.2,
-    horizontal_flip=True,
-    fill_mode='nearest'
-)
+def train_main():
+    logging.info("train_main")
+    inicio = time.time()
+    # Define los generadores de datos para imágenes de StockX y originales
+    train_datagen_stockx = ImageDataGenerator(
+        rescale=1./255,
+        rotation_range=20,
+        width_shift_range=0.2,
+        height_shift_range=0.2,
+        shear_range=0.2,
+        zoom_range=0.2,
+        horizontal_flip=True,
+        fill_mode='nearest'
+    )
 
-train_datagen_originales = ImageDataGenerator(
-    rescale=1./255
-)
+    train_datagen_originales = ImageDataGenerator(
+        rescale=1./255
+    )
 
-# Directorios de entrenamiento
-train_dir_stockx = 'data/train/stockx'
-train_dir_originales = 'data/train/originales'
+    # Directorios de entrenamiento
+    train_dir_stockx = 'data/train/stockx'
+    train_dir_originales = 'data/train/originales'
 
-# cargar más imágenes de stockx para ver qué pasa
-train_generator_stockx = train_datagen_stockx.flow_from_directory(
-    train_dir_stockx,
-    target_size=(150, 150),
-    batch_size=32,
-    class_mode='categorical'
-)
+    # cargar más imágenes de stockx para ver qué pasa
+    train_generator_stockx = train_datagen_stockx.flow_from_directory(
+        train_dir_stockx,
+        target_size=(150, 150),
+        batch_size=32,
+        class_mode='categorical'
+    )
 
-train_generator_originales = train_datagen_originales.flow_from_directory(
-    train_dir_originales,
-    target_size=(150, 150),
-    batch_size=32,
-    class_mode='categorical' 
-)
+    train_generator_originales = train_datagen_originales.flow_from_directory(
+        train_dir_originales,
+        target_size=(150, 150),
+        batch_size=32,
+        class_mode='categorical' 
+    )
 
-base_model = tf.keras.applications.MobileNetV2(
-    weights='imagenet',  
-    input_shape=(150, 150, 3),
-    include_top=False
-)
+    base_model = tf.keras.applications.MobileNetV2(
+        weights='imagenet',  
+        input_shape=(150, 150, 3),
+        include_top=False
+    )
 
-base_model.trainable = False  
+    base_model.trainable = False  
 
-model = tf.keras.Sequential([
-    base_model,
-    tf.keras.layers.GlobalAveragePooling2D(),
-    tf.keras.layers.Dense(256, activation='relu'),
-    tf.keras.layers.Dropout(0.5),
-    tf.keras.layers.Dense(train_generator_originales.num_classes, activation='softmax')  # Cambiado a 'train_generator_originales.num_classes'
-])
+    model = tf.keras.Sequential([
+        base_model,
+        tf.keras.layers.GlobalAveragePooling2D(),
+        tf.keras.layers.Dense(256, activation='relu'),
+        tf.keras.layers.Dropout(0.5),
+        tf.keras.layers.Dense(train_generator_originales.num_classes, activation='softmax')  # Cambiado a 'train_generator_originales.num_classes'
+    ])
 
-# Compilar modelo
-model.compile(optimizer='adam',
-              loss='categorical_crossentropy',
-              metrics=['accuracy'])
+    # Compilar modelo
+    model.compile(optimizer='adam',
+                loss='categorical_crossentropy',
+                metrics=['accuracy'])
 
-# Entrenar modelo con datos de StockX
-model.fit(train_generator_stockx, epochs=5)
+    # Entrenar modelo con datos de StockX
+    model.fit(train_generator_stockx, epochs=5)
 
-# Descongelar algunas capas base
-base_model.trainable = True
-fine_tune_at = 100
-for layer in base_model.layers[:fine_tune_at]:
-    layer.trainable = False
+    # Descongelar algunas capas base
+    base_model.trainable = True
+    fine_tune_at = 100
+    for layer in base_model.layers[:fine_tune_at]:
+        layer.trainable = False
 
-# Continuar entrenamiento con datos originales
-model.fit(train_generator_originales, epochs=5)
+    # Continuar entrenamiento con datos originales
+    model.fit(train_generator_originales, epochs=5)
 
-# Guardar modelo
-model.save('IAone')
+    # Guardar modelo
+    model.save('IAone')
+    fin = time.time()
+    logging.info(f'TIEMPO DE EJECUCION(train_main): {round(fin-inicio, 1)}s')
+    return model
 
 # Bucle interactivo para la predicción y retroalimentación del usuario
 while True:
+    model = train_main()
     img_path = input("Ingrese la ruta de la imagen para predecir (o 'salir' para terminar): ")
     if img_path.lower() == 'salir':
         break

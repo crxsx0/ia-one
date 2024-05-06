@@ -1,0 +1,19 @@
+2024-05-05 23:41:27,426 - INFO - train_main
+2024-05-05 23:41:27,453 - WARNING - `input_shape` is undefined or non-square, or `rows` is not in [96, 128, 160, 192, 224]. Weights for input shape (224, 224) will be loaded as the default.
+2024-05-05 23:41:55,606 - WARNING - Function `_wrapped_model` contains input name(s) mobilenetv2_1.00_224_input with unsupported characters which will be renamed to mobilenetv2_1_00_224_input in the SavedModel.
+2024-05-05 23:42:02,364 - WARNING - Found untraced functions such as _jit_compiled_convolution_op, _jit_compiled_convolution_op, _jit_compiled_convolution_op, _jit_compiled_convolution_op, _jit_compiled_convolution_op while saving (showing 5 of 52). These functions will not be directly callable after loading.
+2024-05-05 23:42:06,619 - INFO - Assets written to: IAone\assets
+2024-05-05 23:42:08,232 - INFO - TIEMPO DE EJECUCION(train_main): 40.8s
+2024-05-05 23:42:22,710 - INFO - predict_image
+2024-05-05 23:42:23,656 - INFO - TIEMPO DE EJECUCION(predict_image): 0.9s
+2024-05-05 23:42:30,797 - INFO - train_model_with_feedback
+2024-05-05 23:42:30,797 - INFO - predict_image
+2024-05-05 23:42:30,886 - INFO - TIEMPO DE EJECUCION(predict_image): 0.1s
+2024-05-05 23:42:36,042 - INFO - TIEMPO DE EJECUCION(train_model_with_feedback): 5.2s
+2024-05-05 23:42:36,042 - INFO - train_main
+2024-05-05 23:42:36,069 - WARNING - `input_shape` is undefined or non-square, or `rows` is not in [96, 128, 160, 192, 224]. Weights for input shape (224, 224) will be loaded as the default.
+2024-05-05 23:43:05,283 - WARNING - Function `_wrapped_model` contains input name(s) mobilenetv2_1.00_224_input with unsupported characters which will be renamed to mobilenetv2_1_00_224_input in the SavedModel.
+2024-05-05 23:43:11,997 - WARNING - Found untraced functions such as _jit_compiled_convolution_op, _jit_compiled_convolution_op, _jit_compiled_convolution_op, _jit_compiled_convolution_op, _jit_compiled_convolution_op while saving (showing 5 of 52). These functions will not be directly callable after loading.
+2024-05-05 23:43:16,140 - INFO - Assets written to: IAone\assets
+2024-05-05 23:43:17,239 - INFO - TIEMPO DE EJECUCION(train_main): 41.2s
+2024-05-05 23:43:25,410 - INFO - predict_image
