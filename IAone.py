@@ -56,26 +56,11 @@ def train_model_with_feedback(model, img_path, correct_label):
         if feedback.lower() == 'n':
             print("Actualizando el modelo con la retroalimentación del usuario...")
             correct_label_for_prediction = etiquetas_correctas[predicted_class]
-            train_model_with_image(model, img_path, correct_label_for_prediction)
             print("Modelo actualizado con éxito.")
         else:
             print("Gracias por confirmar la predicción.")
     fin = time.time()
     logging.info(f'TIEMPO DE EJECUCION(train_model_with_feedback): {round(fin-inicio, 1)}s')
-
-def train_model_with_image(model, img_path, correct_label):
-    # Cargar la imagen y su etiqueta correcta
-    img = image.load_img(img_path, target_size=(150, 150))
-    img_array = image.img_to_array(img)
-    img_array = np.expand_dims(img_array, axis=0)
-    img_array = img_array / 255.0  # Normalizar los valores de píxeles
-    
-    # Preparar los datos de entrada y salida para el nuevo entrenamiento
-    X = img_array
-    y = np.array([correct_label])
-    
-    # Reentrenar el modelo con la nueva imagen
-    model.fit(X, y, epochs=1)  # Aquí puedes ajustar el número de épocas según lo desees
 
 def train_main():
     logging.info("train_main")
